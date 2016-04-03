@@ -1,0 +1,196 @@
+body {
+	font-size: 16px;
+}
+
+.rest-container {
+	display: none;
+}
+
+.event-image {
+	display: block;
+	align: center;
+	max-width: 600px;
+	margin: 0 auto;
+	border: 3px solid green;
+}
+
+.event-image img{
+	width: 100%;
+	height: auto;
+}
+
+/* Menu styles */
+#primary-menu ul li a
+	font-size: 15px;
+}
+
+#prayer-times .content-wrap {
+
+}
+
+#prayer-times .container {
+	width: 100%;
+}
+
+#prayer-times {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	background-color: #FFF;
+}
+
+.table > thead > tr > th.nextprayer, .table > tbody > tr > td.nextprayer, .table > tbody > tr > th.nextprayer, .table > tr > th.nextprayer, .table > tr > td.nextprayer {
+  color: #46C73D;
+  background-color: #46C73D;
+}
+
+
+#prayer-times .prayer-counter-title {
+	text-align: right;
+}
+
+#prayer-times table th, #prayer-times table td {
+	text-align: center;
+}
+
+#countdown-wrapper { clear: left; float: left; position: relative; left: 80%; }
+
+
+#prayer-times h3, h4{
+	margin-bottom: 5px;
+	white-space: nowrap;
+}
+
+
+
+#prayer-times h4 > span:not(.nocolor) {
+	color: #555;
+	font-weight: 400;
+	white-space: nowrap;
+}
+
+/* Only Prayer Times Page Styles Start*/
+
+.opt-title {
+	font-size: 50px;	
+}
+
+.opt-title-span {
+	display: block;
+	margin: 0 auto;	
+	width: 500px;
+	padding: 0 0 75px 0;
+}
+
+.opt-container {
+	width: 100%;
+	padding: 0 100px 0 50px;
+}
+
+.opt-container table td {
+	height: 100px;
+}
+
+.opt-container thead h3, .opt-container thead h4{
+	font-size: 40px;
+}
+
+.opt-container h3, .opt-container h4{
+	font-size: 30px;
+}
+
+/* Only Prayer Times Page Styles End*/
+
+.icons-donationbox-container{
+	width: 70%;
+    margin: 0 auto;
+}
+
+.icons-container {
+	display: block; 
+	width: 200px; 
+	height: 50px;
+	
+}
+
+/* START styles for ajax load more button*/
+#load-next-posts {
+	display: block;
+	position: relative;
+}
+/* END styles for ajax load more button*/
+
+/*
+.form-control {
+	width: 35%;
+}
+*/
+
+/* Audio Video */
+
+.portfolio-audio audio {
+	width: 276px; display: block;
+}
+
+.portfolio-item .portfolio-audio,
+.portfolio-item .portfolio-audio a,
+.portfolio-item .portfolio-audio img {
+	display: block;
+	width: 276px;
+	height: 40px;
+}
+
+.single-event p {
+	font-size: 18px;
+}
+
+.subtitle-font {
+	font-weight: 600;
+}
+
+.ievent .entry-title h3 {
+  font-size: 16px;
+}
+
+.news-row-container {
+	display: none;
+}
+
+.news-row {
+	word-wrap: break-word;
+	color: red;
+	font-size: 16px;
+}
+
+/* Sunday School Styles Begin*/
+
+#school-schedule {
+	max-width: 400px;
+}
+
+#school-schedule table th, #prayer-times table td {
+	text-align: center;
+}
+
+#ss-subjects {
+	list-style: none;
+}
+
+.ss-announcements a {
+	display: block;
+	color: #EEE;
+}
+
+.ss-announcements .note {
+	font-size: 14px;
+	font-style: italic;
+	display: block;
+}
+
+.blue .section, .section.blue{
+	
+	background-color: #82B9D7;
+	
+}
+
+/* Sunday School Styles End*/
