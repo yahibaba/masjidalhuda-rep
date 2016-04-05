@@ -1,5 +1,10 @@
 (function () {
 	
+	/***********************************************************************
+	The following code initializes Prayertime Plugin in the Global Object
+	
+	START Global Initialization
+	***********************************************************************/
     window.masjidData = {
             ptplugin : {}
         };
@@ -17,18 +22,108 @@
     
     pp.gridHeader = ["header","fajar","sunrise","dhuhr","asr","maghrib","isha","jumah1","jumah2"];
     
-    var dataRefreshFrequency = arguments[0];    
+    //var dataRefreshFrequency = arguments[0];    
 	
 	var now, nowWithoutTimeStr, clientOffset, dayOfTheWeek, today, tomorrow, tomorrowWithoutTimeStr;
 	
+	/***********************************************************************	
+	END Global Initialization
+	***********************************************************************/			
+	
+    function Slider(cacheType, debugMode){
+		pp.logging = debugMode;
+        loadCache(cacheType);
+    }	
+	
+	/*
+	This is the first method that is run. loadCache method initialzies the cache
+	by getting the data from the server
+	*/
 	function loadCache(cacheType){
 		var url = "http://www.yahibaba.com/madmin/prayerTimes/" + cacheType;
 		$.getJSON(url, function(data){
 			pp.ptCache = data;			
-			console.log(pp.ptCache);
+			console.log("Cache has been initialized.");
 			run();
 		});		
 	}	
+	
+	/*
+	This method is called after the cache has been initialized
+	*/
+    var run = function(){		
+        init();
+        moveSlider();
+    }		
+	
+	/*
+	
+	*/
+	function init(){
+        		
+        //initialize cache
+        //pp.ptCache = JSON.parse($("#prayerTimesData").val());
+		//alert(pp.ptCache[0].date);
+        
+        clientOffset = -6;
+        
+        //initialize today and tomorrow date variables
+        now = clientDate(new Date(), clientOffset);              
+        nowWithoutTimeStr = (now.getMonth() + 1)+"/"+now.getDate()+"/"+now.getFullYear();        
+        today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+        tomorrowWithoutTimeStr = (tomorrow.getMonth() + 1)+"/"+tomorrow.getDate()+"/"+tomorrow.getFullYear();
+
+        //get today's and tomorrow's grid data from cache
+        var todayData, tomorrowData;
+        for(var i=0; i<pp.ptCache.length; i++){
+        	if(nowWithoutTimeStr === pp.ptCache[i].date){
+        		todayData = pp.ptCache[i];
+        	} else if(tomorrowWithoutTimeStr === pp.ptCache[i].date){
+        		tomorrowData = pp.ptCache[i];
+        	}
+        }
+		
+		/*
+		Next we need to establish if which days data will the grid display. If the current day's 
+		last prayer is done (isha prayer), then the grid will display next days data. 
+		*/
+		
+        
+        var ishaDate=null;
+        
+        //This var needs to be initialized in case todayData is not found to some value lesser than now.
+        var endOfCurrentDay=new Date(nowWithoutTimeStr);
+        
+        //This condition can happen for DAILY schedule since only one days data is available.
+        if(todayData !== undefined){
+        	//get isha prayers date and add buffer time to it
+        	ishaDate = new Date(nowWithoutTimeStr + " " + todayData["ishaIqamaTime"]);
+        	endOfCurrentDay = new Date(ishaDate.getTime() + (todayData["ishaBufferTime"] * 60 * 1000));
+        }
+
+        //if ISHA prayer is done then gridDate is next day if not then it is the current day
+        if(now.getTime() < endOfCurrentDay.getTime()){	
+        	pp.gridDate = now;
+        	pp.gridDateWithoutTimeStr = nowWithoutTimeStr;
+        	pp.gridData = todayData;
+        } else {
+        	pp.gridDate = tomorrow;
+        	pp.gridDateWithoutTimeStr = (tomorrow.getMonth() + 1)+"/"+tomorrow.getDate()+"/"+tomorrow.getFullYear();
+        	pp.gridData = tomorrowData;
+        }		        		
+        log("The grid date is: "+pp.gridDate);
+		
+		populateGrid();
+        
+        //basing on the grid date initialize the prayerlist
+        if(pp.gridDate.getDay() === 5){
+            pp.prayerList = ["fajar","jumah1","jumah2", "asr","maghrib","isha"];            
+        } else {
+            pp.prayerList = ["fajar","dhuhr", "asr","maghrib","isha"];
+        }
+             
+	}
 	
 	function populateGrid(){
 		
@@ -53,78 +148,25 @@
 		$(spans[6]).text(pp.gridData.ishaIqamaTime);
 		$(spans[7]).text(pp.gridData.jumah1IqamaTime);
 		$(spans[8]).text(pp.gridData.jumah1IqamaTime);		
-	}
-	
-	function init(){
-        		
-        //initialize cache
-        //pp.ptCache = JSON.parse($("#prayerTimesData").val());
-		//alert(pp.ptCache[0].date);
-        
-        clientOffset = -6;
-        
-        //initialize today and tomorrow date variables
-        now = clientDate(new Date(), clientOffset);      
-        
-        nowWithoutTimeStr = (now.getMonth() + 1)+"/"+now.getDate()+"/"+now.getFullYear();        
-        today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
-        tomorrowWithoutTimeStr = (tomorrow.getMonth() + 1)+"/"+tomorrow.getDate()+"/"+tomorrow.getFullYear();
-
-        //get today's and tomorrow's grid data from cache
-        var todayData, tomorrowData;
-        for(var i=0; i<pp.ptCache.length; i++){
-        	if(nowWithoutTimeStr === pp.ptCache[i].date){
-        		todayData = pp.ptCache[i];
-        	} else if(tomorrowWithoutTimeStr === pp.ptCache[i].date){
-        		tomorrowData = pp.ptCache[i];
-        	}
-        }
-        
-        var ishaDate=null;
-        
-        //This var needs to be initialized in case todayDate is not found.
-        var startTime=new Date(nowWithoutTimeStr);
-        
-        //This condition can happen for DAILY schedule since only one days data is available.
-        if(todayData !== undefined){
-        	//get isha prayers date and add buffer time to it
-        	ishaDate = new Date(nowWithoutTimeStr + " " + todayData["ishaIqamaTime"]);
-        	startTime = new Date(ishaDate.getTime() + (todayData["ishaBufferTime"] * 60 * 1000));
-        }
-
-        //if ISHA prayer is done then gridDate is nextday if not then it is the current day
-        if(now.getTime() < startTime.getTime()){	
-        	pp.gridDate = now;
-        	pp.gridDateWithoutTimeStr = nowWithoutTimeStr;
-        	pp.gridData = todayData;
-        } else {
-        	pp.gridDate = tomorrow;
-        	pp.gridDateWithoutTimeStr = (tomorrow.getMonth() + 1)+"/"+tomorrow.getDate()+"/"+tomorrow.getFullYear();
-        	pp.gridData = tomorrowData;
-        }		        		
-        log("The grid date is: "+pp.gridDate);
 		
-		populateGrid();
-        
-        //basing on the grid date initialize the variables
-        //initialize prayerlist
-        if(pp.gridDate.getDay() === 5){
-            pp.prayerList = ["fajar","jumah1","jumah2", "asr","maghrib","isha"];            
-        } else {
-            pp.prayerList = ["fajar","dhuhr", "asr","maghrib","isha"];
-        }
-        log("Done building prayer list");        
-	}
+		log("Done populating the data grid");
+		
+		$( "#prayertimegrid2 tr:eq(1) td:eq(0) span" ).text(pp.gridData.fajarTime);
+		
+		
+	}	
 	
+	/*
+	
+	*/
 	function moveSlider(){
 		
 		if(pp.previousPrayer === "isha"){
-			window.location.reload();
+			window.location.reload(true);
 		}
 		
-		findNextPrayer();		
-		//testNextPrayer();
+		//findNextPrayer();		
+		testNextPrayer();
 		
 		var ptindex = pp.gridHeader.indexOf(pp.nextPrayer);
 
@@ -136,10 +178,13 @@
         
         $( "#prayertimegrid2 tr" ).children().removeClass("nextprayer")
         $( "#prayertimegrid2 tr:eq("+ptindex+")" ).children().addClass("nextprayer")
+		
+		log("Done setting the slider");
         
         //var counterDate = new Date(pp.nextPrayerIqamaDate.getFullYear(), pp.nextPrayerIqamaDate.getMonth(), pp.nextPrayerIqamaDate.getDate());
         //$('#countdown-ex3').countdown({until: pp.nextPrayerIqamaDate});
         
+		log("Next run is in : "+pp.nextRunTimeInMilliSec/(1000)+" seconds");
         setTimeout(moveSlider, pp.nextRunTimeInMilliSec);        
 	}
 		
@@ -169,15 +214,7 @@
 		
 	}
 	
-    var run = function(){		
-        init();
-        moveSlider();
-    }		
-	
-    function Slider(cacheType, debugMode){
-		pp.logging = debugMode;
-        loadCache(cacheType);
-    }
+
     
     pp.slider = Slider;	
 	
@@ -210,6 +247,12 @@
 			return;
 		}
 		var index = pp.prayerList.indexOf(pp.nextPrayer)+1;
+		
+		//pp.nextPrayerIqamaDate=pDate;
+		pp.previousPrayer = pp.nextPrayer;
+		//pp.nextPrayer = pp.prayerList[i];                        
+		pp.nextRunTimeInMilliSec = 10 * 1000;		
+		
 		pp.nextPrayer = pp.prayerList[index];
 		log("The next prayer is: "+pp.nextPrayer);
 	}	
@@ -217,4 +260,4 @@
 	// ==========================Helper functions End===========================
 	
 	
-}("DAILY",true))
+}())
